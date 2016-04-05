@@ -6,7 +6,7 @@ public class Screen {
     }
 
     public void phoneVerification() {
-        System.out.println("Please provide phone verification");
+        System.out.println("Please provide phone verification (press enter)");
     }
 
     public void cardVerification() {
@@ -41,6 +41,7 @@ public class Screen {
         System.out.println("Want a reciept?");
         System.out.println("1. Yes");
         System.out.println("2. No");
+        System.out.println("3. (terminate program)");
     }
 
     public void depositCash() {
@@ -77,6 +78,6 @@ public class Screen {
     }
 
     public void done() {
-        System.out.println("Thank you!\n\n    (next transaction)\n\n");
+        System.out.println("Thank you!\n\n****************\n****************\n");
     }
 }

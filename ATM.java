@@ -1,6 +1,5 @@
 public class ATM {
 
-    private int             cardNumber;
     private BankNetwork     network;
     private Keyboard        keyboard;
     private NFCReader       nfcReader;
@@ -10,7 +9,6 @@ public class ATM {
     private Screen          screen;
 
     public ATM() {
-        cardNumber = -1;
         network = new BankNetwork();
         keyboard = new Keyboard();
         nfcReader = new NFCReader();
@@ -20,29 +18,42 @@ public class ATM {
         screen = new Screen();
     }
 
-    private void deposit(boolean chequing, int amount) {
+    private void deposit() {
+        screen.depositCash();
         try {
-            network.changeBalance(chequing, amount); //exceptions // TODO:
-        } catch (Exception e) {}
+            network.changeBalance(false, keyboard.getEnteredAmount());
+        } catch (Exception e) {
+            screen.invalidWithdrawCash();
+        } //it will never throw
     }
 
-    private void withdrawal(boolean chequing, int amount) {
+    private void withdrawal() {
+        screen.withdrawCash();
+        double amount = keyboard.getEnteredAmount();
         try {
-            network.changeBalance(chequing, -amount); //exceptions // TODO:
-        } catch (Exception e) {}
+            network.changeBalance(false, -amount);
+            cashDispenser.dispenseCash(amount);
+        } catch (Exception e) {
+            screen.invalidWithdrawCash();
+        }
     }
 
-    private double checkBalance(boolean chequing) { //checks balance of current card number
-        return network.getBalance(chequing);
+    private void checkBalance() { //checks balance of current card number
+        screen.accountSelect();
+        int c = keyboard.getSelectedOption(2);
+        screen.checkBalance(network.getBalance(c != 1));
     }
 
-    private void depositCheque(boolean chequing, int amount) {
+    private void depositCheque() {
+        screen.depositCheque();
         try {
-            network.changeBalance(chequing, amount); //exceptions // TODO:
-        } catch (Exception e) {}
+            network.changeBalance(false, keyboard.getEnteredAmount());
+        } catch (Exception e) {
+            screen.invalidWithdrawCash();
+        } //it will never throw
     }
 
-    public void run() {
+    public boolean run() {
         boolean ifCard = false;
 
         screen.initialScreen();
@@ -69,34 +80,16 @@ public class ATM {
             choice = keyboard.getSelectedOption(6);
             switch (choice) {
                 case 1: //deposit cash
-                    screen.depositCash();
-                    try {
-                        network.changeBalance(false, keyboard.getEnteredAmount());
-                    } catch (Exception e) {
-                        screen.invalidWithdrawCash();
-                    } //it will never throw
+                    deposit();
                     break;
                 case 2: //deposit chequhqe
-                    screen.depositCheque();
-                    try {
-                        network.changeBalance(false, keyboard.getEnteredAmount());
-                    } catch (Exception e) {
-                        screen.invalidWithdrawCash();
-                    } //it will never throw
+                    depositCheque();
                     break;
                 case 3: //withd cash
-                    screen.withdrawCash();
-                    try {
-                        network.changeBalance(false, -keyboard.getEnteredAmount());
-                        break;
-                    } catch (Exception e) {
-                        screen.invalidWithdrawCash();
-                    }
+                    withdrawal();
                     break;
                 case 4: //check balance
-                    screen.accountSelect();
-                    choice = keyboard.getSelectedOption(2);
-                    screen.checkBalance(network.getBalance(choice != 1));
+                    checkBalance();
                     break;
                 case 5: //trasfera b
                     double amount;
@@ -121,10 +114,13 @@ public class ATM {
         }
 
         screen.printDetails();
-        choice = keyboard.getSelectedOption(2);
+        choice = keyboard.getSelectedOption(3);
         if (choice == 1) {
             int accountNumber = ifCard ? cardReader.getCardNumber() : nfcReader.getNFCNumber();
             printer.printReceipt(accountNumber, network.getBalance(false), network.getBalance(true));
+        }
+        if (choice == 3) {
+             return false;
         }
 
         if (ifCard) {
@@ -132,12 +128,13 @@ public class ATM {
             cardReader.returnCard();
         }
         screen.done();
+        return true;
     }
 
     //private viewTransactions() {}
 
     public static void main (String[] args) {
         ATM atm = new ATM();
-        while(true) atm.run();
+        while(atm.run());
     }
 }
