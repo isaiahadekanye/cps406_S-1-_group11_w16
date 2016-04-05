@@ -7,7 +7,7 @@ public class CardReader {
     }
 
     public void returnCard() {
-        //your good
+        System.out.println("Card Reader: Card Ejected");
     }
 
     public int getCardNumber() {

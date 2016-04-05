@@ -2,7 +2,7 @@ import java.util.TreeMap;
 
 public class BankNetwork {
     private int accountNum;
-    private static TreeMap<Integer, Double> accounts;
+    private static TreeMap<Integer, Account> accounts;
 
     public BankNetwork() {
         accountNum = -1;
@@ -11,18 +11,31 @@ public class BankNetwork {
 
     public boolean verifyPin(int accountNumber, int pinNumber) {
         accountNum = accountNumber;
-        if (accounts.get(accountNum) == null) accounts.put(accountNum, 0.0);
+        if (accounts.get(accountNum) == null) accounts.put(accountNum, new Account(0.0,0.0));
         return true;
     }
 
-    public void changeBalance(double amount) throws Exception {
-        if (accountNum == -1) throw new Exception("noCurrentAccountException");
-        if (amount > accounts.get(accountNum)) throw new Exception("InsufficientFundsException");
-
-        accounts.put(accountNum, amount);
+    public void changeBalance(boolean chequing, double amount) throws Exception { //changes to ammount!!!
+        if (chequing) {
+            if (accounts.get(accountNum).chequing + amount < 0) throw new IllegalArgumentException();
+            accounts.get(accountNum).chequing += amount;
+        } else {
+            if (accounts.get(accountNum).savings + amount < 0) throw new IllegalArgumentException();
+            accounts.get(accountNum).savings += amount;
+        }
     }
 
-    public double getBalance() {
-        return accounts.get(accountNum);
+    public double getBalance(boolean chequing) {
+        return chequing ? accounts.get(accountNum).chequing : accounts.get(accountNum).savings;
+    }
+
+    private class Account {
+        public double chequing;
+        public double savings;
+
+        public Account (double c, double s) {
+            chequing = c;
+            savings = s;
+        }
     }
 }

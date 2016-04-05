@@ -1,6 +1,6 @@
 public class CashDispenser {
     public void dispenseCash(double amount) {
-        System.out.format("CashDispenser: Dispensed: %.2lf\n", amount);
+        System.out.format("Cash Dispenser: Dispensed: $%.2f\n", amount);
     }
 
     public static void main (String[] args) {
